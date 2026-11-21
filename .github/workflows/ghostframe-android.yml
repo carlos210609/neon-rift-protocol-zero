@@ -17,10 +17,10 @@ jobs:
       - name: Unpack game and generate tactical assets
         run: |
           set -e
+          apt-get update -qq
+          apt-get install -y -qq xz-utils python3-pip
           base64 -d ghostframe-source.b64 > ghostframe-source.tar.xz
           tar -xJf ghostframe-source.tar.xz
-          apt-get update -qq
-          apt-get install -y -qq python3-pip
           python3 -m pip install --break-system-packages --quiet numpy trimesh
           python3 tools/build_soldiers_glb.py
           python3 tools/enhance_soldiers.py
@@ -29,13 +29,13 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p dist
-          godot --headless --path godot --editor --quit --verbose 2>&1 | tee dist/import.log
-          godot --headless --path godot --quit-after 5 2>&1 | tee dist/runtime.log
+          HOME=/root godot --headless --path godot --editor --quit --verbose 2>&1 | tee dist/import.log
+          HOME=/root godot --headless --path godot --quit-after 5 2>&1 | tee dist/runtime.log
           if grep -Ei "SCRIPT ERROR|Parse Error|Failed to load script" dist/import.log dist/runtime.log; then exit 1; fi
       - name: Export signed Android debug APK
         run: |
           set -o pipefail
-          godot --headless --path godot --export-debug "Android" "$GITHUB_WORKSPACE/dist/GHOSTFRAME-debug.apk" 2>&1 | tee dist/export.log
+          HOME=/root godot --headless --path godot --export-debug "Android" "$GITHUB_WORKSPACE/dist/GHOSTFRAME-debug.apk" 2>&1 | tee dist/export.log
           test -s dist/GHOSTFRAME-debug.apk
           unzip -tqq dist/GHOSTFRAME-debug.apk
           sha256sum dist/GHOSTFRAME-debug.apk > dist/SHA256SUMS.txt
