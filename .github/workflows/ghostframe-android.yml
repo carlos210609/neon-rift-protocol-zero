@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.4.1
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - name: Unpack game and generate tactical assets
@@ -21,7 +24,7 @@ jobs:
           apt-get install -y -qq xz-utils python3-pip
           base64 -d ghostframe-source.b64 > ghostframe-source.tar.xz
           tar -xJf ghostframe-source.tar.xz
-          python3 -m pip install --break-system-packages --quiet numpy trimesh
+          python3 -m pip install --quiet numpy trimesh
           python3 tools/build_soldiers_glb.py
           python3 tools/enhance_soldiers.py
           python3 tools/make_audio.py
